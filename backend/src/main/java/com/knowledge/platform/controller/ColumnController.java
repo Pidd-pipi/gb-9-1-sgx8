@@ -1,6 +1,8 @@
 package com.knowledge.platform.controller;
 
 import com.knowledge.platform.dto.ApiResponse;
+import com.knowledge.platform.dto.ArticleCreateRequest;
+import com.knowledge.platform.dto.ArticleScheduleRequest;
 import com.knowledge.platform.dto.ColumnCreateRequest;
 import com.knowledge.platform.dto.SubscribeRequest;
 import com.knowledge.platform.entity.Article;
@@ -18,7 +20,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/columns")
@@ -59,7 +60,9 @@ public class ColumnController {
 
     @GetMapping("/{id}/articles")
     public ApiResponse<List<Article>> getArticles(@PathVariable String id) {
-        List<Article> articles = articleService.getAllArticles(id);
+        // 读者只看到已上线文章；当前用户若是专栏作者，则连草稿和预约中的文章一并返回
+        String userId = currentUserUtil.getCurrentUserId();
+        List<Article> articles = articleService.listForColumn(id, userId);
         return ApiResponse.success(articles);
     }
 
@@ -67,11 +70,36 @@ public class ColumnController {
     public ApiResponse<Article> getArticle(
             @PathVariable String columnId,
             @PathVariable String articleId) {
-        Optional<Article> articleOpt = articleService.getArticle(columnId, articleId);
-        if (articleOpt.isEmpty()) {
-            return ApiResponse.error("文章不存在");
-        }
-        return ApiResponse.success(articleOpt.get());
+        String userId = currentUserUtil.getCurrentUserId();
+        return articleService.getForReader(columnId, articleId, userId);
+    }
+
+    /** 作者新建草稿（草稿只有作者本人可见） */
+    @PostMapping("/{columnId}/articles")
+    public ApiResponse<Article> createArticle(
+            @PathVariable String columnId,
+            @RequestBody ArticleCreateRequest request) {
+        String userId = currentUserUtil.getCurrentUserId();
+        return articleService.createDraft(userId, columnId, request);
+    }
+
+    /** 作者为草稿预约未来上线时间；上线前可再次调用以修改时间 */
+    @PostMapping("/{columnId}/articles/{articleId}/schedule")
+    public ApiResponse<Article> scheduleArticle(
+            @PathVariable String columnId,
+            @PathVariable String articleId,
+            @RequestBody ArticleScheduleRequest request) {
+        String userId = currentUserUtil.getCurrentUserId();
+        return articleService.schedule(userId, columnId, articleId, request.getScheduledAt());
+    }
+
+    /** 上线前撤回预约，文章恢复为草稿 */
+    @DeleteMapping("/{columnId}/articles/{articleId}/schedule")
+    public ApiResponse<Article> unscheduleArticle(
+            @PathVariable String columnId,
+            @PathVariable String articleId) {
+        String userId = currentUserUtil.getCurrentUserId();
+        return articleService.unschedule(userId, columnId, articleId);
     }
 
     @PostMapping("/{id}/subscribe")

@@ -40,11 +40,20 @@ export interface Column {
 export interface Article {
   id: string
   columnId: string
+  authorId?: string
   title: string
   content: string
   summary?: string
+  description?: string
   sequence: number
+  /** DRAFT 草稿（仅作者可见）/ SCHEDULED 已预约 / PUBLISHED 已上线 */
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED'
+  /** 预约上线时间 */
+  scheduledAt?: string
+  /** 实际上线时间，读者专栏页按它倒序 */
+  publishedAt?: string
   createdAt: string
+  updatedAt?: string
 }
 
 export interface AudioCourse {

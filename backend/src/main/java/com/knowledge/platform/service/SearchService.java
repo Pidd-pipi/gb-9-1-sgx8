@@ -37,7 +37,7 @@ public class SearchService {
             ));
         }
 
-        List<Article> articles = articleRepository.searchByKeyword(keyword);
+        List<Article> articles = articleRepository.searchPublishedByKeyword(keyword);
         for (Article article : articles) {
             results.add(new SearchResult(
                     "ARTICLE",
