@@ -39,6 +39,10 @@ public class SearchService {
 
         List<Article> articles = articleRepository.searchByKeyword(keyword);
         for (Article article : articles) {
+            // 草稿和预约中的文章只有作者本人可见，不对读者暴露
+            if (article.getStatus() != null && article.getStatus() != Article.Status.PUBLISHED) {
+                continue;
+            }
             results.add(new SearchResult(
                     "ARTICLE",
                     article.getId(),

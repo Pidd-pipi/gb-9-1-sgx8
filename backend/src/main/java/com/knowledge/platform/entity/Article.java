@@ -17,6 +17,9 @@ public class Article {
     @Indexed
     private String columnId;
 
+    @Indexed
+    private String authorId;
+
     @TextIndexed(weight = 3)
     private String title;
 
@@ -28,7 +31,19 @@ public class Article {
 
     private Integer sequence;
 
+    private Status status = Status.DRAFT;
+
+    private LocalDateTime scheduledAt;
+
+    private LocalDateTime publishedAt;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    public enum Status {
+        DRAFT,
+        SCHEDULED,
+        PUBLISHED
+    }
 }

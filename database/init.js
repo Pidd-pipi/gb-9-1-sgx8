@@ -22,6 +22,8 @@ db.columns.createIndex({ title: 'text', description: 'text' });
 
 db.createCollection('articles');
 db.articles.createIndex({ columnId: 1 });
+db.articles.createIndex({ authorId: 1 });
+db.articles.createIndex({ status: 1, scheduledAt: 1 });
 db.articles.createIndex({ title: 'text', content: 'text' });
 
 db.createCollection('audio_courses');

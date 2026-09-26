@@ -13,6 +13,8 @@ import {
   message,
   Spin,
 } from 'antd'
+import { ClockCircleOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import { columnApi } from '../api/column'
 import type { Column, Article } from '../types'
 
@@ -149,9 +151,17 @@ function ColumnDetail() {
                       #{index + 1}
                     </Text>
                     {article.title}
+                    {article.status === 'SCHEDULED' && (
+                      <Tag icon={<ClockCircleOutlined />} color="orange" style={{ marginLeft: 8 }}>
+                        预约中 · {dayjs(article.scheduledAt).format('MM-DD HH:mm')} 上线
+                      </Tag>
+                    )}
+                    {article.status === 'DRAFT' && (
+                      <Tag style={{ marginLeft: 8 }}>草稿</Tag>
+                    )}
                   </span>
                 }
-                description={article.summary || article.description}
+                description={article.summary}
               />
             </List.Item>
           )}

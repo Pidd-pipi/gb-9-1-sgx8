@@ -1,6 +1,8 @@
 package com.knowledge.platform.controller;
 
 import com.knowledge.platform.dto.ApiResponse;
+import com.knowledge.platform.dto.ArticleCreateRequest;
+import com.knowledge.platform.dto.ArticleScheduleRequest;
 import com.knowledge.platform.dto.ColumnCreateRequest;
 import com.knowledge.platform.dto.SubscribeRequest;
 import com.knowledge.platform.entity.Article;
@@ -59,7 +61,8 @@ public class ColumnController {
 
     @GetMapping("/{id}/articles")
     public ApiResponse<List<Article>> getArticles(@PathVariable String id) {
-        List<Article> articles = articleService.getAllArticles(id);
+        String userId = currentUserUtil.getCurrentUserId();
+        List<Article> articles = articleService.getVisibleArticles(id, userId);
         return ApiResponse.success(articles);
     }
 
@@ -67,11 +70,57 @@ public class ColumnController {
     public ApiResponse<Article> getArticle(
             @PathVariable String columnId,
             @PathVariable String articleId) {
-        Optional<Article> articleOpt = articleService.getArticle(columnId, articleId);
+        String userId = currentUserUtil.getCurrentUserId();
+        Optional<Article> articleOpt = articleService.getVisibleArticle(columnId, articleId, userId);
         if (articleOpt.isEmpty()) {
-            return ApiResponse.error("文章不存在");
+            return ApiResponse.error("文章不存在或未上线");
         }
         return ApiResponse.success(articleOpt.get());
+    }
+
+    @PostMapping("/{columnId}/articles")
+    public ApiResponse<Article> createArticle(
+            @PathVariable String columnId,
+            @RequestBody ArticleCreateRequest request) {
+        String userId = currentUserUtil.getCurrentUserId();
+        if (userId == null) {
+            return ApiResponse.error("请先登录");
+        }
+        return articleService.createArticle(userId, columnId, request);
+    }
+
+    @PutMapping("/{columnId}/articles/{articleId}/schedule")
+    public ApiResponse<Article> scheduleArticle(
+            @PathVariable String columnId,
+            @PathVariable String articleId,
+            @RequestBody ArticleScheduleRequest request) {
+        String userId = currentUserUtil.getCurrentUserId();
+        if (userId == null) {
+            return ApiResponse.error("请先登录");
+        }
+        return articleService.scheduleArticle(userId, columnId, articleId, request.getScheduledAt());
+    }
+
+    @DeleteMapping("/{columnId}/articles/{articleId}/schedule")
+    public ApiResponse<Article> cancelSchedule(
+            @PathVariable String columnId,
+            @PathVariable String articleId) {
+        String userId = currentUserUtil.getCurrentUserId();
+        if (userId == null) {
+            return ApiResponse.error("请先登录");
+        }
+        return articleService.cancelSchedule(userId, columnId, articleId);
+    }
+
+    @PostMapping("/{columnId}/articles/{articleId}/publish")
+    public ApiResponse<Article> publishArticle(
+            @PathVariable String columnId,
+            @PathVariable String articleId) {
+        String userId = currentUserUtil.getCurrentUserId();
+        if (userId == null) {
+            return ApiResponse.error("请先登录");
+        }
+        return articleService.publishNow(userId, columnId, articleId);
     }
 
     @PostMapping("/{id}/subscribe")

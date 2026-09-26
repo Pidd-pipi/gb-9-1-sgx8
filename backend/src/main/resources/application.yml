@@ -44,6 +44,10 @@ alipay:
 frontend:
   url: ${FRONTEND_URL:http://localhost:3000}
 
+article:
+  publish-check-interval-ms: ${ARTICLE_PUBLISH_CHECK_INTERVAL_MS:30000}
+  publish-check-initial-delay-ms: ${ARTICLE_PUBLISH_CHECK_INITIAL_DELAY_MS:10000}
+
 logging:
   level:
     com.knowledge.platform: DEBUG

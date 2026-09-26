@@ -40,10 +40,14 @@ export interface Column {
 export interface Article {
   id: string
   columnId: string
+  authorId?: string
   title: string
   content: string
   summary?: string
   sequence: number
+  status?: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED'
+  scheduledAt?: string
+  publishedAt?: string
   createdAt: string
 }
 

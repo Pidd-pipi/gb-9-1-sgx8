@@ -20,4 +20,13 @@ export const columnApi = {
 
   createArticle: (columnId: string, data: any) =>
     api.post(`/columns/${columnId}/articles`, data),
+
+  scheduleArticle: (columnId: string, articleId: string, scheduledAt: string) =>
+    api.put(`/columns/${columnId}/articles/${articleId}/schedule`, { scheduledAt }),
+
+  cancelSchedule: (columnId: string, articleId: string) =>
+    api.delete(`/columns/${columnId}/articles/${articleId}/schedule`),
+
+  publishArticle: (columnId: string, articleId: string) =>
+    api.post(`/columns/${columnId}/articles/${articleId}/publish`),
 }
